@@ -70,12 +70,12 @@ class L3AgentLayer(AceLayer):
             {"role": "system", "content": system_message + """\n\nAs the AI lecturer Charles, I will only send back what I would verbally say if I were tutoring you on content. 
             I want you to send me the: the entire lecture content (textual), the current slide that we're on, a further re-iteration of
             the textual content of this slide, and descriptions of any diagrams/equations present on this slide. I will then speak and 
-            tutor you directly, only returning the words that I would say in a lecture."""},
+            tutor you directly, only returning the words that I would say in a lecture. I won't thank you for the lecture slide content. I'll jump straight into the teaching."""},
             {"role": "user", "content": user_message}
         ]
         print("System prompt: " + system_message)
         print("User prompt: " + user_message)
-        await self.talk_to_llm_and_execute_actions("global", llm_messages)
+        return await self.talk_to_llm_and_execute_actions("global", llm_messages)
 
     async def talk_to_llm_and_execute_actions(self, communication_channel, llm_messages: [GptMessage]):
         await self.set_status(LayerStatus.INFERRING)
@@ -86,6 +86,7 @@ class L3AgentLayer(AceLayer):
                 llm_messages.append(llm_response)
 
                 print("Raw LLM response:\n" + llm_response_content)
+                return llm_response_content
 
                 actions = self.parse_actions(communication_channel, llm_response_content)
 
@@ -96,7 +97,7 @@ class L3AgentLayer(AceLayer):
                         self.execute_action_and_send_result_to_llm(action, communication_channel, llm_messages)
                     )
                 # Wait for all actions to finish
-                await asyncio.gather(*running_actions)
+                return await asyncio.gather(*running_actions)
             else:
                 print("LLM response was empty, so I guess we are done here.")
         finally:

@@ -70,16 +70,21 @@ class FastApiApp:
         async def chat(request: Request):
             data = await request.json()
             messages: [ChatMessage] = data.get('messages', [])
-            communication_channel = WebCommunicationChannel(messages, self.chatConnectionManager, self.media_generators)
+            
+            # Removed WebSocket related lines.
+            # communication_channel = WebCommunicationChannel(messages, self.chatConnectionManager, self.media_generators)
 
             try:
-                await self.ace.l3_agent.process_incoming_user_message(communication_channel)
-                return JSONResponse(content={"success": True}, status_code=200)
+                # Here you need to adapt your processing to work without WebSockets.
+                # The call to process_incoming_user_message may need to be changed to accommodate the absence of WebSockets.
+                result = await self.ace.l3_agent.process_incoming_user_message(messages)
+                return JSONResponse(content={"success": True, "content": str(result)}, status_code=200)
             except Exception as e:
-                print("Damn, something went wrong while processing incoming user message!")
+                print("Error occurred while processing incoming user message!")
                 traceback_str = traceback.format_exc()
                 print(traceback_str)
-                return create_chat_message("Stacey", f"Damn! Something went wrong: {str(e)}")
+                return JSONResponse(content={"error": str(e), "traceback": traceback_str}, status_code=500)
+
 
         @app.get("/chat/")
         async def chat_get(message: str):

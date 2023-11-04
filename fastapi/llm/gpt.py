@@ -47,9 +47,9 @@ class GPT:
         completion = anthropic.completions.create(
             model="claude-2",
             max_tokens_to_sample=5000,
-            prompt=f"{HUMAN_PROMPT} {str(conversation)}{AI_PROMPT}[",
+            prompt=f'{HUMAN_PROMPT} {str(conversation)}{AI_PROMPT}[{{"action": "respond_to_user"',
         )
-        return {'content': '['+completion.completion}
+        return {'content': '[{"action": "respond_to_user"'+completion.completion.split(']')[0] + ']'}
 
         openai.api_key = self.api_key
         chat_completion = openai.ChatCompletion.create(
