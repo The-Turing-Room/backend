@@ -2,7 +2,7 @@
 import traceback
 
 import uvicorn
-from fastapi import FastAPI, Request, WebSocket, HTTPException
+from fastapi import FastAPI, Request, WebSocket, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.responses import HTMLResponse
@@ -81,6 +81,20 @@ class FastApiApp:
                 return JSONResponse(content={"success": True, "content": str(result)}, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
+                traceback_str = traceback.format_exc()
+                print(traceback_str)
+                return JSONResponse(content={"error": str(e), "traceback": traceback_str}, status_code=500)
+
+        @app.post("/publish_pdf/")
+        async def publish_pdf(file_path: str):
+            try:
+                # Assuming the file_path is a path to a file on the server
+                # Validate file_path here if necessary
+                with open(file_path, 'rb') as original_file, open('lecture.pdf', 'wb') as new_file:
+                    new_file.write(original_file.read())
+                return {"success": True, "message": "PDF saved as 'lecture.pdf'"}
+            except Exception as e:
+                print("Error occurred while saving the PDF file!")
                 traceback_str = traceback.format_exc()
                 print(traceback_str)
                 return JSONResponse(content={"error": str(e), "traceback": traceback_str}, status_code=500)
