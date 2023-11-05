@@ -60,11 +60,9 @@ def GPT_output(pdf_file,
 
 
 if __name__ == "__main__":
-    PATH = sys.argv[2]
     FILE = sys.argv[3]
 
-    interpretations = GPT_output(FILE,
-                                 PATH)
+    interpretations = GPT_output(FILE)
         
     print(interpretations)
 
