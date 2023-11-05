@@ -1,8 +1,7 @@
 import requests
-import PDFImageExtractor
 from pdf2img import image_extractor
 import os
-import PdfToText
+from PdfToText import PdfToText
 import sys
 
 '''
@@ -40,12 +39,14 @@ def GPT_output(pdf_file,
         #Iterate through the path directory for all the generated images
         for imgs in os.listdir(path):
             
-            params["image_url"] = os.path.join(path,imgs)
+            params["image_path"] = os.path.join(path,imgs)
             
+            print(params)
             #Get the Interpretations for the image
-            img_intepreation = requests.get("https://0.0.0.0:8000/action/",
-                                params = params)
+            img_intepreation = requests.post("http://0.0.0.0:8000/action/",
+                                json = params)
             
+            print(img_intepreation)
             if img_intepreation["status"] == "Success":
                 imgs_interpretation.append(img_intepreation["result"])
 
@@ -60,7 +61,7 @@ def GPT_output(pdf_file,
 
 
 if __name__ == "__main__":
-    FILE = sys.argv[3]
+    FILE = sys.argv[1]
 
     interpretations = GPT_output(FILE)
         
