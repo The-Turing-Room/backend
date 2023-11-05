@@ -6,6 +6,8 @@ from fastapi import FastAPI, Request, WebSocket, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.responses import HTMLResponse
+import PyPDF2
+import json
 
 from ace.types import ChatMessage, create_chat_message
 from channels.web.web_communication_channel import WebCommunicationChannel
@@ -45,6 +47,7 @@ class FastApiApp:
 
     def setup_routes(self):
         app = self.app  # to shorten the code
+        self.pdf_path = None
 
         @app.websocket("/ws-admin/")
         async def websocket_endpoint_admin(websocket: WebSocket):
@@ -68,28 +71,61 @@ class FastApiApp:
 
         @app.post("/chat/")
         async def chat(request: Request):
+            if self.pdf_path is None:
+                raise HTTPException(status_code=400, detail="Please upload a pdf")
+
             data = await request.json()
             messages: [ChatMessage] = data.get('messages', [])
-            
-            # Removed WebSocket related lines.
-            # communication_channel = WebCommunicationChannel(messages, self.chatConnectionManager, self.media_generators)
+            slide_number: int = data.get('slide_number', None)
 
+            # Ensure slide_number is provided
+            if slide_number is None:
+                raise HTTPException(status_code=400, detail="Slide number is required")
+
+            # Read the PDF file and extract text
+            full_text = ""
+            slide_text = ""
             try:
-                # Here you need to adapt your processing to work without WebSockets.
-                # The call to process_incoming_user_message may need to be changed to accommodate the absence of WebSockets.
-                result = await self.ace.l3_agent.process_incoming_user_message(messages)
-                return JSONResponse(content={"success": True, "content": str(result)}, status_code=200)
+                with open(self.pdf_path, 'rb') as pdf_file:
+                    pdf_reader = PyPDF2.PdfReader(pdf_file)
+                    # Extract the full text content
+                    for page in pdf_reader.pages:
+                        full_text += page.extract_text() + "\n"
+
+                    # Extract text from the specified slide
+                    slide_text = pdf_reader.pages[slide_number - 1].extract_text()
+            except Exception as e:
+                print("Error occurred while reading the PDF file!")
+                traceback_str = traceback.format_exc()
+                print(traceback_str)
+                return JSONResponse(content={"error": str(e), "traceback": traceback_str}, status_code=500)
+
+            # Construct the system prompt
+            system_prompt = f"TEXTUAL LECTURE CONTENT:\n{full_text}\n\nCONTENT ON SLIDE {slide_number}:\n=======================\n\n{slide_text}"
+
+            # Include conversation history in the prompt
+            # Assuming messages is a list of ChatMessage objects and contains the conversation history
+            # conversation_history = "\n".join([f"{msg.sender}: {msg.text}" for msg in messages])
+            final_prompt = f"{system_prompt}\n\nConversation History:\n{messages}"
+
+            # Process the message
+            try:
+                result = await self.ace.l3_agent.process_incoming_user_message(final_prompt)
+                result = json.loads(result.json()['content'].replace('\n', '\\n'))[0]
+                return JSONResponse(content={"success": True, "content": result}, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
                 traceback_str = traceback.format_exc()
                 print(traceback_str)
                 return JSONResponse(content={"error": str(e), "traceback": traceback_str}, status_code=500)
 
+
         @app.post("/publish_pdf/")
         async def publish_pdf(request: Request):
             data = await request.json()
             print(f'GOT DATA: {data}')
             file_path= data['file_path']
+            self.pdf_path = file_path
             try:
                 # Assuming the file_path is a path to a file on the server
                 # Validate file_path here if necessary
