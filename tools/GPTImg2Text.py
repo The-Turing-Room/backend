@@ -39,7 +39,7 @@ def GPT_output(pdf_file,
         #Iterate through the path directory for all the generated images
         for imgs in os.listdir(path):
             
-            params["image_path"] = os.path.join(path,imgs)
+            params["image_path"] = os.path.abspath(imgs)
             
             print(params)
             #Get the Interpretations for the image
