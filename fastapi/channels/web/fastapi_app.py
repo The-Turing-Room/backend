@@ -127,7 +127,7 @@ class FastApiApp:
                 # return {'content': '[{"action": "respond_to_user"'+completion.completion.split(']')[0] + ']'}
 
 
-                return JSONResponse(content={"success": True, "content": completion.completion, status_code=200)
+                return JSONResponse(content={"success": True, "content": completion.completion}, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
                 traceback_str = traceback.format_exc()
