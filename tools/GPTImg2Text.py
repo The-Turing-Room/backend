@@ -3,6 +3,7 @@ from pdf2img import image_extractor
 import os
 from PdfToText import PdfToText
 import sys
+import json
 
 '''
 1. Script generates the images in the 'images' folder, 
@@ -35,15 +36,16 @@ def GPT_output(pdf_file,
     for pg_num in image_extractor(path,pdf_file):
         
         imgs_interpretation = []
-        params["prompt"] = prompt
+        params = {}
         #Iterate through the path directory for all the generated images
         for imgs in os.listdir(path):
             
-            params["image_path"] = os.path.abspath(imgs).replace("'",'"')
-            
+            params["image_path"] = os.path.abspath(os.path.join(path,imgs))
+            params["prompt"] = prompt
+            # params = json.dumps(params)
             print(params)
             #Get the Interpretations for the image
-            img_intepreation = requests.post("http://0.0.0.0:8000/action/",
+            img_intepreation = requests.post(url = "http://0.0.0.0:8000/action/",
                                 json = params)
             
             print(img_intepreation)
