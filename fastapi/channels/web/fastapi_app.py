@@ -13,7 +13,14 @@ from ace.types import ChatMessage, create_chat_message
 from channels.web.web_communication_channel import WebCommunicationChannel
 from channels.web.web_socket_connection_manager import WebSocketConnectionManager
 from media.media_replace import MediaGenerator
+from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
+import os
 
+
+
+api_key = "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"
+os.environ['ANTHROPIC_API_KEY'] = api_key
+anthropic = Anthropic()
 
 class FastApiApp:
     def __init__(self, ace_system, media_generators: [MediaGenerator]):
@@ -112,7 +119,15 @@ class FastApiApp:
             try:
                 result = await self.ace.l3_agent.process_incoming_user_message(final_prompt)
                 result = result.replace('\n', '\\n')
-                return JSONResponse(content={"success": True, "content": json.loads(result)[0]}, status_code=200)
+                completion = anthropic.completions.create(
+                    model="claude-2",
+                    max_tokens_to_sample=5000,
+                    prompt=f'{HUMAN_PROMPT} + " Given the following potentially badly formatted json, I want you to output just value of the key text" +   {AI_PROMPT} Value of text: ',
+                )
+                # return {'content': '[{"action": "respond_to_user"'+completion.completion.split(']')[0] + ']'}
+
+
+                return JSONResponse(content={"success": True, "content": completion.completion, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
                 traceback_str = traceback.format_exc()
