@@ -110,7 +110,7 @@ class FastApiApp:
             # Process the message
             try:
                 result = await self.ace.l3_agent.process_incoming_user_message(final_prompt)
-                return JSONResponse(content={"success": True, "content": str(result)}, status_code=200)
+                return JSONResponse(content={"success": True, "content": result}, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
                 traceback_str = traceback.format_exc()
