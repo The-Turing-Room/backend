@@ -74,6 +74,7 @@ async def perform_action(payload: Payload):
     try:
         # Determine if an image URL or a local image path was provided
         if payload.image_url:
+
             # Download the image from the provided URL
             response = requests.get(payload.image_url, stream=True)
             response.raise_for_status()
@@ -83,6 +84,7 @@ async def perform_action(payload: Payload):
             with open(image_filename, "wb") as image_file:
                 for chunk in response.iter_content(chunk_size=8192):
                     image_file.write(chunk)
+
         elif payload.image_path:
             # Use the provided local image path
             image_filename = payload.image_path
@@ -133,7 +135,7 @@ async def perform_action(payload: Payload):
             final_resp["result"] = json.loads(answer)
 
         # Cleanup
-        os.remove(os.path.abspath(image_filename))
+        #os.remove(os.path.abspath(image_filename))
 
         return final_resp
 

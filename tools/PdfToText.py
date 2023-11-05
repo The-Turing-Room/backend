@@ -32,7 +32,7 @@ class PdfToText:
                 
                 # Only add slides with text to the output
                 if text:
-                    slides_data[f"Slide {slide_number}"] = text
+                    slides_data[f"Slide {slide_number}"] = {"Text Input":text}
 
         return json.dumps(slides_data, indent=4)
 

@@ -27,6 +27,8 @@ class PDFImageExtractor:
                         img_file.write(img_bytes)
 
                     pg_imgs.append(image_path)  
+            
+            #Indexes the images according to page number
             self.image_data[idx+1] = pg_imgs              
         return self.image_data
         
