@@ -26,7 +26,7 @@ def image_extractor(save_path:str, file_name):
                 img_ext = data["ext"]
 
                 #Write to drive
-                with open(os.path.join(save_path,f"img{img_idx}_{idx}.{img_ext}"),'wb') as img_file:
+                with open(os.path.join(save_path,f"img{idx}_{img_idx}.{img_ext}"),'wb') as img_file:
                     img_file.write(img_bytes)
 
         yield idx + 1
