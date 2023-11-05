@@ -47,7 +47,7 @@ class FastApiApp:
 
     def setup_routes(self):
         app = self.app  # to shorten the code
-        self.pdf_path = None
+        self.pdf_path = 'D:\\Downloads\\negotiation-lecture.pdf'
 
         @app.websocket("/ws-admin/")
         async def websocket_endpoint_admin(websocket: WebSocket):
@@ -75,8 +75,8 @@ class FastApiApp:
                 raise HTTPException(status_code=400, detail="Please upload a pdf")
 
             data = await request.json()
-            messages: [ChatMessage] = data.get('messages', [])
-            slide_number: int = data.get('slide_number', None)
+            messages: str = data.get('messages', '')
+            slide_number: int = int(data.get('slide_number', None))
 
             # Ensure slide_number is provided
             if slide_number is None:
@@ -111,8 +111,8 @@ class FastApiApp:
             # Process the message
             try:
                 result = await self.ace.l3_agent.process_incoming_user_message(final_prompt)
-                result = json.loads(result.json()['content'].replace('\n', '\\n'))[0]
-                return JSONResponse(content={"success": True, "content": result}, status_code=200)
+                result = result.replace('\n', '\\n')
+                return JSONResponse(content={"success": True, "content": json.loads(result)[0]}, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
                 traceback_str = traceback.format_exc()
