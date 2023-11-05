@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     interpretations = GPT_output(FILE)
         
-    print(interpretations)
+    print(json.dump(interpretations))
 
 
         
