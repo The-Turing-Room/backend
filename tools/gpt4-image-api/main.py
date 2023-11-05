@@ -29,7 +29,7 @@ class Payload(BaseModel):
 
 
 
-ANSWER_FORMAT = "Answer ONLY by JSON following this format: " '{"answer": your answer}'
+ANSWER_FORMAT = ". Answer ONLY by JSON following this format: " '{"answer": your answer}, The answer should be in a paragraph format.'
 
 
 @app.get("/start")
