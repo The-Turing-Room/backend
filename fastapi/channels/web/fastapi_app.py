@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.responses import HTMLResponse
 import PyPDF2
+import json
 
 from ace.types import ChatMessage, create_chat_message
 from channels.web.web_communication_channel import WebCommunicationChannel
@@ -110,6 +111,7 @@ class FastApiApp:
             # Process the message
             try:
                 result = await self.ace.l3_agent.process_incoming_user_message(final_prompt)
+                result = json.loads(result.json()['content'].replace('\n', '\\n'))[0]
                 return JSONResponse(content={"success": True, "content": result}, status_code=200)
             except Exception as e:
                 print("Error occurred while processing incoming user message!")
