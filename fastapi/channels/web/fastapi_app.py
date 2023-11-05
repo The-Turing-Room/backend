@@ -122,8 +122,10 @@ class FastApiApp:
                 completion = anthropic.completions.create(
                     model="claude-2",
                     max_tokens_to_sample=5000,
-                    prompt=f'{HUMAN_PROMPT} + " Given the following potentially badly formatted json, I want you to output just value of the key text" +   {AI_PROMPT} Value of text: ',
+                    prompt=f'{HUMAN_PROMPT} + " Given the following potentially badly formatted json, I want you to output a human readable value of the key text with no new lines: {result}" +   {AI_PROMPT} Value of text: ',
                 )
+
+                print(f'DEBUG COMPLETION OUTPUT: {completion.completion}')
                 # return {'content': '[{"action": "respond_to_user"'+completion.completion.split(']')[0] + ']'}
 
 
