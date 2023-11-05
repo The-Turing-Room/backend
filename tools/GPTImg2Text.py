@@ -3,6 +3,7 @@ import PDFImageExtractor
 from pdf2img import image_extractor
 import os
 import PdfToText
+import sys
 
 '''
 1. Script generates the images in the 'images' folder, 
@@ -56,8 +57,16 @@ def GPT_output(pdf_file,
 
     #Return Dictionary Containing Slide Text and Explanations
     return interp
-        
 
+
+if __name__ == "__main__":
+    PATH = sys.argv[2]
+    FILE = sys.argv[3]
+
+    interpretations = GPT_output(FILE,
+                                 PATH)
+        
+    print(interpretations)
 
 
         
