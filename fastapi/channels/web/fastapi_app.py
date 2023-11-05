@@ -86,7 +86,10 @@ class FastApiApp:
                 return JSONResponse(content={"error": str(e), "traceback": traceback_str}, status_code=500)
 
         @app.post("/publish_pdf/")
-        async def publish_pdf(file_path: str):
+        async def publish_pdf(request: Request):
+            data = await request.json()
+            print(f'GOT DATA: {data}')
+            file_path= data['file_path']
             try:
                 # Assuming the file_path is a path to a file on the server
                 # Validate file_path here if necessary
